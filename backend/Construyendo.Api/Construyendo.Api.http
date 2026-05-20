@@ -1,0 +1,101 @@
+@Construyendo.Api_HostAddress = http://localhost:5085
+
+GET {{Construyendo.Api_HostAddress}}/health
+Accept: application/json
+
+###
+
+GET {{Construyendo.Api_HostAddress}}/api/public/ping
+Accept: application/json
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "change-this-password"
+}
+
+###
+
+GET {{Construyendo.Api_HostAddress}}/api/admin/auth/me
+Accept: application/json
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/auth/logout
+
+###
+
+GET {{Construyendo.Api_HostAddress}}/api/admin/news?page=1&pageSize=20
+Accept: application/json
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/categories
+Content-Type: application/json
+
+{
+  "name": "Institucional",
+  "sortOrder": 1,
+  "isActive": true
+}
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/tags
+Content-Type: application/json
+
+{
+  "name": "Obra"
+}
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/news
+Content-Type: application/json
+
+{
+  "title": "Nueva noticia",
+  "excerpt": "Resumen corto de la noticia.",
+  "contentHtml": "<p>Contenido de la noticia.</p>",
+  "status": "Draft",
+  "authorName": "Equipo CUN"
+}
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/media
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="imagen.jpg"
+Content-Type: image/jpeg
+
+< ./sample.jpg
+--boundary--
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/news/{{newsId}}/main-image
+Content-Type: application/json
+
+{
+  "mediaAssetId": "{{mediaAssetId}}"
+}
+
+###
+
+POST {{Construyendo.Api_HostAddress}}/api/admin/news/{{newsId}}/gallery
+Content-Type: application/json
+
+{
+  "mediaAssetId": "{{mediaAssetId}}",
+  "caption": "Pie de foto",
+  "altText": "Descripcion de la imagen",
+  "sortOrder": 1
+}
+
+###

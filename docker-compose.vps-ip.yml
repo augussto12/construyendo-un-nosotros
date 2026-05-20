@@ -1,0 +1,113 @@
+services:
+  construyendo_postgres:
+    image: postgres:16-alpine
+    container_name: construyendo_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - construyendo_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - construyendo_internal
+
+  construyendo_api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.api.vps
+    container_name: construyendo_api
+    restart: unless-stopped
+    depends_on:
+      construyendo_postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=construyendo_postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME}
+      COOKIE_NAME: ${COOKIE_NAME}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      DATA_PROTECTION_KEYS_PATH: /app/keys
+      MEDIA_STORAGE_ROOT: /app/uploads
+      MEDIA_PUBLIC_BASE_PATH: /uploads
+      MEDIA_MAX_IMAGE_BYTES: ${MEDIA_MAX_IMAGE_BYTES:-5242880}
+      MEDIA_ALLOWED_IMAGE_TYPES: ${MEDIA_ALLOWED_IMAGE_TYPES:-image/jpeg,image/png,image/webp}
+    volumes:
+      - construyendo_uploads:/app/uploads
+      - construyendo_dataprotection_keys:/app/keys
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - construyendo_internal
+
+  construyendo_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.vps
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    container_name: construyendo_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PUBLIC_PORT:-8096}:80"
+    depends_on:
+      construyendo_api:
+        condition: service_healthy
+    networks:
+      - construyendo_internal
+
+  construyendo_migrator:
+    profiles:
+      - tools
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.migrator.vps
+    container_name: construyendo_migrator
+    depends_on:
+      construyendo_postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=construyendo_postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      DATA_PROTECTION_KEYS_PATH: /tmp/construyendo-keys
+      MEDIA_STORAGE_ROOT: /tmp/construyendo-uploads
+      MEDIA_PUBLIC_BASE_PATH: /uploads
+    command:
+      - dotnet
+      - tool
+      - run
+      - dotnet-ef
+      - database
+      - update
+      - --project
+      - Construyendo.Api/Construyendo.Api.csproj
+      - --startup-project
+      - Construyendo.Api/Construyendo.Api.csproj
+    networks:
+      - construyendo_internal
+
+volumes:
+  construyendo_postgres_data:
+    name: construyendo_postgres_data
+  construyendo_uploads:
+    name: construyendo_uploads
+  construyendo_dataprotection_keys:
+    name: construyendo_dataprotection_keys
+
+networks:
+  construyendo_internal:
+    name: construyendo_internal
+    driver: bridge

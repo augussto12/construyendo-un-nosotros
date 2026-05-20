@@ -1,0 +1,11 @@
+.env
+.env.*
+bin/
+obj/
+**/bin/
+**/obj/
+uploads/
+**/uploads/
+TestResults/
+*.user
+*.suo

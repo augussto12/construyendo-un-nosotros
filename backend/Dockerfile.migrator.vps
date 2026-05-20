@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+WORKDIR /src
+COPY ["Construyendo.sln", "./"]
+COPY [".config/dotnet-tools.json", ".config/dotnet-tools.json"]
+COPY ["Construyendo.Api/Construyendo.Api.csproj", "Construyendo.Api/"]
+RUN dotnet tool restore \
+    && dotnet restore "Construyendo.Api/Construyendo.Api.csproj"
+
+COPY . .
