@@ -33,12 +33,26 @@ $COMPOSE up -d --build construyendo_api construyendo_frontend
 
 check_url() {
   url="$1"
+  attempts="${2:-10}"
+  delay_seconds="${3:-3}"
   echo "Checking $url"
-  if ! curl -fsS "$url" >/dev/null; then
-    echo "Health check failed: $url" >&2
-    $COMPOSE logs --tail=120 construyendo_api construyendo_frontend construyendo_postgres >&2
-    exit 1
-  fi
+
+  i=1
+  while [ "$i" -le "$attempts" ]; do
+    if curl -fsS "$url" >/dev/null; then
+      return 0
+    fi
+
+    if [ "$i" -lt "$attempts" ]; then
+      sleep "$delay_seconds"
+    fi
+
+    i=$((i + 1))
+  done
+
+  echo "Health check failed after ${attempts} attempts: $url" >&2
+  $COMPOSE logs --tail=120 construyendo_api construyendo_frontend construyendo_postgres >&2
+  exit 1
 }
 
 check_url "http://localhost:${FRONTEND_PUBLIC_PORT}/health-frontend"
