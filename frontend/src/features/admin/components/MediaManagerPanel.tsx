@@ -162,7 +162,7 @@ export default function MediaManagerPanel({
           <Upload aria-hidden="true" size={18} />
           Subir imagen
         </div>
-        <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+        <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
           <label className="grid gap-2 text-sm font-medium text-slate-700">
             <span className="inline-flex items-baseline gap-1">
               Archivo <span className="text-red-600">*</span>
@@ -192,7 +192,7 @@ export default function MediaManagerPanel({
             </span>
           </label>
           <button
-            className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md border border-brand-green bg-brand-green px-5 text-sm font-semibold text-brand-ink transition hover:bg-[#50ba63] disabled:cursor-not-allowed disabled:opacity-70"
+            className="focus-ring inline-flex min-h-11 w-full items-center justify-center rounded-md border border-brand-green bg-brand-green px-5 text-sm font-semibold text-brand-ink transition hover:bg-[#50ba63] disabled:cursor-not-allowed disabled:opacity-70 md:w-auto"
             type="button"
             onClick={handleUpload}
             disabled={isUploading || Boolean(fileError)}
@@ -263,7 +263,7 @@ export default function MediaManagerPanel({
                         </p>
                       ) : null}
                     </div>
-                    <div className="flex flex-col gap-2 sm:flex-row">
+                    <div className="grid gap-2 sm:flex sm:flex-row">
                       {selectable ? (
                         <button
                           className="focus-ring inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-brand-green bg-brand-green px-3 text-sm font-semibold text-brand-ink transition hover:bg-[#50ba63]"

@@ -80,7 +80,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     editorProps: {
       attributes: {
         class:
-          'min-h-72 rounded-b-md border border-t-0 border-slate-200 px-4 py-3 text-base leading-7 text-slate-800 outline-none',
+          'min-h-72 overflow-x-auto rounded-b-md border border-t-0 border-slate-200 px-4 py-3 text-base leading-7 text-slate-800 outline-none break-words',
       },
       transformPastedHTML(html) {
         return sanitizeBasicHtml(html)

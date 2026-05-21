@@ -46,6 +46,68 @@ function toForm(category: AdminCategoryDto): CategoryFormState {
   }
 }
 
+function CategoryMobileCard({
+  category,
+  isSaving,
+  onEdit,
+  onDeactivate,
+}: {
+  category: AdminCategoryDto
+  isSaving: boolean
+  onEdit: (category: AdminCategoryDto) => void
+  onDeactivate: (category: AdminCategoryDto) => void
+}) {
+  return (
+    <article className="grid gap-4 border-b border-slate-200 py-4 last:border-b-0">
+      <div className="min-w-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="break-words text-base font-semibold text-slate-950">{category.name}</h3>
+          <span className={`w-max rounded-full px-2 py-1 text-xs font-semibold ${
+            category.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'
+          }`}>
+            {category.isActive ? 'Activa' : 'Inactiva'}
+          </span>
+        </div>
+        <p className="mt-1 break-all text-sm text-slate-500">{category.slug}</p>
+      </div>
+      <dl className="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Orden
+          </dt>
+          <dd className="mt-1 text-slate-700">{category.sortOrder}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Estado
+          </dt>
+          <dd className="mt-1 text-slate-700">{category.isActive ? 'Activa' : 'Inactiva'}</dd>
+        </div>
+      </dl>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+          type="button"
+          onClick={() => onEdit(category)}
+          disabled={isSaving}
+        >
+          <Edit3 aria-hidden="true" size={15} />
+          Editar
+        </button>
+        <button
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          type="button"
+          onClick={() => onDeactivate(category)}
+          disabled={isSaving || !category.isActive}
+        >
+          <Power aria-hidden="true" size={15} />
+          Desactivar
+        </button>
+      </div>
+    </article>
+  )
+}
+
 export default function AdminCategoriesPage() {
   const [items, setItems] = useState<AdminCategoryDto[]>([])
   const [form, setForm] = useState<CategoryFormState>(emptyForm)
@@ -309,7 +371,7 @@ export default function AdminCategoriesPage() {
       </form>
 
       <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-slate-950">Listado</h2>
           <span className="text-sm text-slate-500">{items.length} categoria(s)</span>
         </div>
@@ -322,7 +384,19 @@ export default function AdminCategoriesPage() {
             Todavia no hay categorias.
           </p>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="md:hidden">
+            {items.map((category) => (
+              <CategoryMobileCard
+                key={category.id}
+                category={category}
+                isSaving={isSaving}
+                onEdit={startEdit}
+                onDeactivate={setPendingDeactivate}
+              />
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
@@ -373,6 +447,7 @@ export default function AdminCategoriesPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 

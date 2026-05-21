@@ -29,8 +29,8 @@ export default function AdminDialog({
       : 'border-brand-green bg-brand-green text-brand-ink hover:bg-[#50ba63]'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6">
-      <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/40 px-3 py-4 sm:items-center sm:px-4 sm:py-6">
+      <section className="max-h-[calc(100vh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border border-slate-200 bg-white p-5 shadow-xl sm:p-6">
         <h2 className="text-lg font-semibold text-slate-950">{title}</h2>
         {description ? (
           <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>

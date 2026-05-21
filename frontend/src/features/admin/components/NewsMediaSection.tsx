@@ -314,9 +314,9 @@ export default function NewsMediaSection({
                       <p className="mt-1 text-xs text-slate-500">Alt: {image.altText}</p>
                     ) : null}
                   </div>
-                  <div className="flex gap-2 sm:flex-col">
+                  <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-col">
                     <button
-                      className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="focus-ring inline-flex h-10 w-full items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:w-10"
                       type="button"
                       aria-label="Subir imagen en galeria"
                       onClick={() => moveGalleryImage(index, -1)}
@@ -325,7 +325,7 @@ export default function NewsMediaSection({
                       <ArrowUp aria-hidden="true" size={16} />
                     </button>
                     <button
-                      className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="focus-ring inline-flex h-10 w-full items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:w-10"
                       type="button"
                       aria-label="Bajar imagen en galeria"
                       onClick={() => moveGalleryImage(index, 1)}
@@ -334,7 +334,7 @@ export default function NewsMediaSection({
                       <ArrowDown aria-hidden="true" size={16} />
                     </button>
                     <button
-                      className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 bg-white text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="focus-ring inline-flex h-10 w-full items-center justify-center rounded-md border border-red-200 bg-white text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-10"
                       type="button"
                       aria-label="Quitar imagen de galeria"
                       onClick={() => setPendingRemoveGallery(image)}

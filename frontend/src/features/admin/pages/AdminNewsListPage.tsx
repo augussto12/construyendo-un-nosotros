@@ -113,6 +113,101 @@ function actionSuccessMessage(action: PendingAction) {
   return 'Noticia archivada correctamente.'
 }
 
+function NewsMobileCard({
+  item,
+  onAction,
+}: {
+  item: AdminNewsListItem
+  onAction: (action: PendingAction) => void
+}) {
+  return (
+    <article className="grid gap-4 border-b border-slate-200 p-4 last:border-b-0">
+      <div className="grid gap-2">
+        <div className="flex flex-col gap-2">
+          <h2 className="break-words text-base font-semibold text-slate-950">{item.title}</h2>
+          <StatusBadge status={item.status} />
+        </div>
+        <p className="break-all text-xs text-slate-500">{item.slug}</p>
+      </div>
+
+      <dl className="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Destacado
+          </dt>
+          <dd className="mt-1 text-slate-700">
+            {item.isFeatured ? `Si (${item.featuredOrder})` : 'No'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Publicacion
+          </dt>
+          <dd className="mt-1 text-slate-700">{formatDate(item.publishedAt)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Expira
+          </dt>
+          <dd className="mt-1 text-slate-700">{formatDate(item.expiresAt)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Actualizado
+          </dt>
+          <dd className="mt-1 text-slate-700">{formatDate(item.updatedAt)}</dd>
+        </div>
+      </dl>
+
+      <div className="grid grid-cols-2 gap-2">
+        <Link
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-brand-green hover:bg-brand-mint/40"
+          to={`/admin/noticias/${item.id}`}
+        >
+          <Edit aria-hidden="true" size={16} />
+          Editar
+        </Link>
+        <button
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-brand-green hover:bg-brand-mint/40 disabled:cursor-not-allowed disabled:opacity-40"
+          type="button"
+          onClick={() => onAction({ type: 'publish', item })}
+          disabled={item.status === 'Published' || item.status === 'Archived'}
+        >
+          <Send aria-hidden="true" size={16} />
+          Publicar
+        </button>
+        <button
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-brand-green hover:bg-brand-mint/40 disabled:cursor-not-allowed disabled:opacity-40"
+          type="button"
+          onClick={() => onAction({ type: 'schedule', item })}
+          disabled={item.status === 'Archived'}
+        >
+          <CalendarClock aria-hidden="true" size={16} />
+          Programar
+        </button>
+        <button
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40"
+          type="button"
+          onClick={() => onAction({ type: 'unpublish', item })}
+          disabled={item.status === 'Unpublished' || item.status === 'Archived'}
+        >
+          <EyeOff aria-hidden="true" size={16} />
+          Ocultar
+        </button>
+        <button
+          className="focus-ring col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-red-200 bg-white px-3 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+          type="button"
+          onClick={() => onAction({ type: 'archive', item })}
+          disabled={item.status === 'Archived'}
+        >
+          <Archive aria-hidden="true" size={16} />
+          Archivar
+        </button>
+      </div>
+    </article>
+  )
+}
+
 export default function AdminNewsListPage() {
   const navigate = useNavigate()
   const [items, setItems] = useState<AdminNewsListItem[]>([])
@@ -355,7 +450,13 @@ export default function AdminNewsListPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="md:hidden">
+            {items.map((item) => (
+              <NewsMobileCard key={item.id} item={item} onAction={openAction} />
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto md:block">
             <table className="min-w-[68rem] w-full border-collapse text-left text-sm">
               <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                 <tr>
@@ -436,6 +537,7 @@ export default function AdminNewsListPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
@@ -444,7 +546,7 @@ export default function AdminNewsListPage() {
           {totalItems} noticia{totalItems === 1 ? '' : 's'} encontrada
           {totalItems === 1 ? '' : 's'}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 sm:justify-start">
           <button
             className="focus-ring inline-flex min-h-10 items-center rounded-md border border-slate-200 bg-white px-3 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
             type="button"

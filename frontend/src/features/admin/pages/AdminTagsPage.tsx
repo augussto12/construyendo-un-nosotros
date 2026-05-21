@@ -190,7 +190,7 @@ export default function AdminTagsPage() {
       ) : null}
 
       <form className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleSubmit}>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-base font-semibold text-slate-950">
             {editingItem ? `Editar: ${editingItem.name}` : 'Nuevo tag'}
           </h2>
@@ -247,7 +247,7 @@ export default function AdminTagsPage() {
       </form>
 
       <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-slate-950">Listado</h2>
           <span className="text-sm text-slate-500">{items.length} tag(s)</span>
         </div>
@@ -266,13 +266,13 @@ export default function AdminTagsPage() {
                 className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
                 key={tag.id}
               >
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-sm font-semibold text-slate-950">{tag.name}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{tag.slug}</p>
+                  <p className="mt-1 break-all text-sm text-slate-500">{tag.slug}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="grid gap-2 sm:flex">
                   <button
-                    className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                    className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
                     type="button"
                     onClick={() => startEdit(tag)}
                     disabled={isSaving}
@@ -281,7 +281,7 @@ export default function AdminTagsPage() {
                     Editar
                   </button>
                   <button
-                    className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-md border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                     type="button"
                     onClick={() => setPendingDelete(tag)}
                     disabled={isSaving}

@@ -57,6 +57,88 @@ function roleBadge(role: AdminUserRole) {
     : 'bg-slate-100 text-slate-700'
 }
 
+function UserMobileCard({
+  user,
+  isSaving,
+  onEdit,
+  onResetPassword,
+  onToggleActive,
+}: {
+  user: AdminBackofficeUser
+  isSaving: boolean
+  onEdit: (user: AdminBackofficeUser) => void
+  onResetPassword: (user: AdminBackofficeUser) => void
+  onToggleActive: (user: AdminBackofficeUser) => void
+}) {
+  return (
+    <article className="grid gap-4 border-b border-slate-200 p-4 last:border-b-0">
+      <div className="min-w-0">
+        <h2 className="break-words text-base font-semibold text-slate-950">{user.displayName}</h2>
+        <p className="mt-1 break-all text-sm text-slate-500">{user.email}</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${roleBadge(user.role)}`}>
+          {user.role}
+        </span>
+        <span
+          className={`rounded-full px-2 py-1 text-xs font-semibold ${
+            user.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+          }`}
+        >
+          {user.isActive ? 'Activo' : 'Inactivo'}
+        </span>
+      </div>
+      <dl className="grid gap-3 text-sm">
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Ultimo login
+          </dt>
+          <dd className="mt-1 text-slate-700">{formatDate(user.lastLoginAt)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Actualizado
+          </dt>
+          <dd className="mt-1 text-slate-700">{formatDate(user.updatedAt)}</dd>
+        </div>
+      </dl>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <button
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          type="button"
+          onClick={() => onEdit(user)}
+          disabled={isSaving}
+        >
+          <Edit3 aria-hidden="true" size={15} />
+          Editar
+        </button>
+        <button
+          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          type="button"
+          onClick={() => onResetPassword(user)}
+          disabled={isSaving}
+        >
+          <KeyRound aria-hidden="true" size={15} />
+          Password
+        </button>
+        <button
+          className={`focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition ${
+            user.isActive
+              ? 'border-amber-200 text-amber-800 hover:bg-amber-50'
+              : 'border-emerald-200 text-emerald-800 hover:bg-emerald-50'
+          }`}
+          type="button"
+          onClick={() => onToggleActive(user)}
+          disabled={isSaving}
+        >
+          {user.isActive ? <Power aria-hidden="true" size={15} /> : <UserCheck aria-hidden="true" size={15} />}
+          {user.isActive ? 'Desactivar' : 'Activar'}
+        </button>
+      </div>
+    </article>
+  )
+}
+
 export default function AdminUsersPage() {
   const { adminUser } = useAdminAuth()
   const isAdmin = adminUser?.role === 'Admin'
@@ -135,6 +217,20 @@ export default function AdminUsersPage() {
     setError(null)
     setSuccess(null)
     setDialog({ type: 'edit', user })
+  }
+
+  function openResetPasswordDialog(user: AdminBackofficeUser) {
+    setForm({ ...emptyForm, password: '' })
+    setPasswordConfirm('')
+    setError(null)
+    setSuccess(null)
+    setDialog({ type: 'reset', user })
+  }
+
+  function openActivationDialog(user: AdminBackofficeUser) {
+    setError(null)
+    setSuccess(null)
+    setDialog({ type: user.isActive ? 'deactivate' : 'activate', user })
   }
 
   function closeDialog() {
@@ -317,7 +413,19 @@ export default function AdminUsersPage() {
         </p>
       ) : (
         <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
+          <div className="md:hidden">
+            {sortedUsers.map((user) => (
+              <UserMobileCard
+                key={user.id}
+                user={user}
+                isSaving={isSubmitting}
+                onEdit={openEditDialog}
+                onResetPassword={openResetPasswordDialog}
+                onToggleActive={openActivationDialog}
+              />
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
@@ -367,13 +475,7 @@ export default function AdminUsersPage() {
                         <button
                           className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                           type="button"
-                          onClick={() => {
-                            setForm({ ...emptyForm, password: '' })
-                            setPasswordConfirm('')
-                            setError(null)
-                            setSuccess(null)
-                            setDialog({ type: 'reset', user })
-                          }}
+                          onClick={() => openResetPasswordDialog(user)}
                         >
                           <KeyRound aria-hidden="true" size={14} />
                           Password
@@ -385,11 +487,7 @@ export default function AdminUsersPage() {
                               : 'border-emerald-200 text-emerald-800 hover:bg-emerald-50'
                           }`}
                           type="button"
-                          onClick={() => {
-                            setError(null)
-                            setSuccess(null)
-                            setDialog({ type: user.isActive ? 'deactivate' : 'activate', user })
-                          }}
+                          onClick={() => openActivationDialog(user)}
                         >
                           {user.isActive ? <Power aria-hidden="true" size={14} /> : <UserCheck aria-hidden="true" size={14} />}
                           {user.isActive ? 'Desactivar' : 'Activar'}
